@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>RoundPic - গোলছবি</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    input[type="file"], input[type="range"] {
+      margin: 15px;
+    }
+
+    #preview {
+      width: 250px;
+      height: 250px;
+      object-fit: cover;
+      display: none;
+      border: 4px solid #4caf50;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      transition: border-radius 0.3s ease;
+    }
+
+    label {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #downloadBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .ad-container {
+      margin: 30px 0;
+    }
+
+    footer {
+      margin-top: 50px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 RoundPic - গোলছবি</h1>
+  <p>ছবি আপলোড করুন এবং রাউন্ড ফ্রেম নিয়ন্ত্রণ করুন</p>
+
+  <input type="file" id="imageUpload" accept="image/*">
+  <img id="preview" alt="Uploaded Image Preview">
+
+  <label for="radiusControl">রাউন্ড পরিমাণ (Border Radius): <span id="radiusValue">50</span>%</label>
+  <input type="range" id="radiusControl" min="0" max="50" value="50">
+
+  <!-- ⬇️ Download Button -->
+  <button id="downloadBtn">⬇️ ছবিটি ডাউনলোড করুন</button>
+
+  <!-- ⬇️ Adsterra বিজ্ঞাপন ডাউনলোড বাটনের নিচে -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '47ba0a8662ee550996ef17fccbd9acd6',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/47ba0a8662ee550996ef17fccbd9acd6/invoke.js"></script>
+  </div>
+
+  <footer>Made with ❤️ by You</footer>
+
+  <script>
+    const imageUpload = document.getElementById('imageUpload');
+    const preview = document.getElementById('preview');
+    const radiusControl = document.getElementById('radiusControl');
+    const radiusValue = document.getElementById('radiusValue');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    imageUpload.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+          preview.src = reader.result;
+          preview.style.display = 'block';
+          downloadBtn.style.display = 'inline-block';
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    radiusControl.addEventListener('input', function () {
+      const value = this.value;
+      preview.style.borderRadius = value + "%";
+      radiusValue.textContent = value;
+    });
+
+    downloadBtn.addEventListener('click', function () {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = preview.width;
+      canvas.height = preview.height;
+
+      const radius = parseInt(radiusControl.value) / 100 * canvas.width / 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(canvas.width - radius, 0);
+      ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+      ctx.lineTo(canvas.width, canvas.height - radius);
+      ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
+      ctx.lineTo(radius, canvas.height);
+      ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.clip();
+
+      const image = new Image();
+      image.onload = function () {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const link = document.createElement('a');
+        link.download = 'roundpic.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      };
+      image.src = preview.src;
+    });
+  </script>
+</body>
+</html>
